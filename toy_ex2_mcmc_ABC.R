@@ -1,13 +1,13 @@
 # Load required libraries
-library(Easymcmc)
+library(EasyABC)
 library(ggplot2)
 
 set.seed(0)
 
 ##### Simulate Observed Data #####
 n <- 250
-true_mu <- 0
-true_sigma <- 5
+true_mu <- 2
+true_sigma <- 2
 observed_data <- rnorm(n, mean = true_mu, sd = true_sigma)
 
 ##### Metropolis-Hastings Sampling #####
@@ -45,7 +45,7 @@ mh_sampler <- function(iterations, init) {
   return(samples)
 }
 
-iterations <- 5000000
+iterations <- 1000000
 init <- c(mean(observed_data), sd(observed_data))
 mh_samples <- mh_sampler(iterations, init)
 mh_samples <- mh_samples[5001:nrow(mh_samples), ]  # Burn-in
@@ -79,11 +79,12 @@ mcmc_results <- ABC_mcmc(
   model = model,
   prior = prior,
   summary_stat_target = c(mean(observed_data), sd(observed_data)),
-  n_rec = 100000,
+  n_rec = 1000000,
   n_between_sampling = 10,
   use_seed = FALSE,
   progress_bar = TRUE,
-  method = "Marjoram"
+  method = "Marjoram",
+  tol = 0.9999
 )
 
 mcmc_samples <- mcmc_results$param
@@ -98,11 +99,8 @@ hist(sigma_samples_mcmc, breaks = 50, col = "orange", main = "Posterior σ (mcmc
 
 
 
-
-
-
 grid_size <- 40000
-grid_mu <- seq(-10, 10, length.out = grid_size)
+grid_mu <- seq(-20, 20, length.out = grid_size)
 grid_sigma <- seq(0, 10, length.out = grid_size)  # sigma must be non-negative
 
 # Initialize probability distributions
@@ -142,4 +140,5 @@ total_error <- sqrt(error_mu^2 + error_sigma^2)
 print(paste("Error in mu:", error_mu))
 print(paste("Error in sigma:", error_sigma))
 print(paste("Total error:", total_error))
+
 
