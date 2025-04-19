@@ -4,7 +4,7 @@ source("rhathat.r")
 
 mu = 2.0
 v = 4.0
-n = 100
+n = 250
 
 xObs = rnorm(n,mean=mu,sd=sqrt(v))
 ## 4 1 2 2
