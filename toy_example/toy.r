@@ -7,7 +7,6 @@ v = 4.0
 n = 250
 
 xObs = rnorm(n,mean=mu,sd=sqrt(v))
-## 4 1 2 2
 
 nIt = 100000
 sigmaProposal = c(0.1,0.1) # proposal standard deviations
@@ -15,7 +14,8 @@ theta = c(3,3.9)  # start value
 muCorrect = c()
 vCorrect = c()
 
-for (i in c(1:nIt)) {
+for (i in c(1:nIt)) 
+{
   thetaProposal = theta
   thetaProposal[1] = theta[1] + sigmaProposal[1] * rnorm(1)
   thetaProposal[2] = theta[2] + sigmaProposal[2] * rnorm(1)
@@ -26,11 +26,13 @@ for (i in c(1:nIt)) {
   varProposal = thetaProposal[2]
   
   
-  if (varProposal > 0.0) { # otherwise reject
+  if (varProposal > 0.0) # otherwise reject
+  { 
     logr = log(var) - log(varProposal) - (n/2)*log(varProposal) + (n/2)*log(var)
     logr = logr - (1/(2*varProposal))*sum((xObs-meanProposal)^2) + (1/(2*var))*sum((xObs-mean)^2)
     
-    if (logr > 0 || runif(1) <= exp(logr)) {  # accept proposal
+    if (logr > 0 || runif(1) <= exp(logr)) # accept proposal
+    {  
       theta = thetaProposal
     }
   }
@@ -39,12 +41,11 @@ for (i in c(1:nIt)) {
   vCorrect = c(vCorrect,theta[2])
 }
 
-# simulate from the approximate posterior by random walk MH
-library(class)   # for the knn for classification
+# simulate from the approximate posterior 
+library(class)  
 
 theta = c(3.0,3.9)  # start value
 classifyParam = NULL # Control parameters for logistic regression 
-#classifyParam = list(kk = 10) # Control parameters for knn
 
 q = 0.5
 sigma0 = 0.0065
@@ -67,7 +68,8 @@ fhat = abs(r0 * r1)
 
 
 
-for (i in c(1:nIt)) {
+for (i in c(1:nIt)) 
+{
   thetaProposal = theta
   thetaProposal[1] = theta[1] + sigmaProposal[1] * rnorm(1)
   thetaProposal[2] = theta[2] + sigmaProposal[2] * rnorm(1)
@@ -75,7 +77,8 @@ for (i in c(1:nIt)) {
   mean = theta[1]
   sd = sqrt(theta[2])
   
-  if (thetaProposal[2] > 0.0) { # otherwise reject
+  if (thetaProposal[2] > 0.0) # otherwise reject
+  { 
     meanProposal = thetaProposal[1]
     sdProposal = sqrt(thetaProposal[2])
     
@@ -87,8 +90,9 @@ for (i in c(1:nIt)) {
     rr = rr * fhatProposal / fhat
     
     print(c(i,rr,mean,sd))
-    #flush.console()
-    if (runif(1) <= rr) {  # accept proposal
+    
+    if (runif(1) <= rr) 
+    { 
       theta = thetaProposal
       r0 = r0Proposal
       r1 = r1Proposal
@@ -174,3 +178,20 @@ true_posterior = true_posterior / sum(true_posterior)
 # --- L1 Error (Total Variation Distance) ---
 l1_error = sum(abs(posterior_estimate - true_posterior))
 cat("Grid-based Posterior L1 Error (Total Variation Distance):", l1_error, "\n")
+
+# PLot the densities
+library(ggplot2)
+
+grid_points$Posterior_Estimate <- posterior_estimate
+grid_points$True_Posterior <- true_posterior
+
+ggplot(grid_points, aes(mu, sigma)) +
+  geom_tile(aes(fill = Posterior_Estimate)) +
+  labs(title = "Estimated Posterior (Classifier-based)", fill = "Density") +
+  theme_minimal()
+
+ggplot(grid_points, aes(mu, sigma)) +
+  geom_tile(aes(fill = True_Posterior)) +
+  labs(title = "True Posterior (Likelihood + Prior)", fill = "Density") +
+  theme_minimal()
+
