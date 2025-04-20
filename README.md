@@ -1,10 +1,7 @@
-# Bayesian-Inference-MTH422
-### Run codes and update errors
-Toy experiment  -------- Error
-1. ABC MCMC -- Working
-2.
-3.
-4.
-5.
+# Steps to run the simulations:
+1) Download the entire folder.
+2) Set it as the working directory.
+3) Run the toy.R file.
+4) We are submitting the file with the number of iterations variable nIt set to 1000.
+5) To reproduce results and plots for different number of iterations please change the variable value.
 
-Stepping Stone ---------Error
