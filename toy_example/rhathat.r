@@ -1,35 +1,37 @@
-rhathat = function(type, yObs, classifyParam, q, sd, xObs, mu, sigma) {
+rhathat = function(type,yObs,classifyParam,q,sd,xObs,mu,sigma) {
   nA = 10
-  a = numeric(nA)
-  for (i in 1:nA) {
-    xGenerated = rnorm(length(xObs), mean = mu, sd = sigma)
-    a[i] = classify(type, xObs, xGenerated, classifyParam)
+  a = rep(0,nA)
+  for (i in c(1:nA)) {
+    xGenerated = rnorm(length(xObs),mean = mu,sd = sigma)
+    a[i] = classify(type,xObs,xGenerated,classifyParam)
   }
-  rhat = mean(a)
+  a = mean(a)
   
-  tau = rgeom(1, q) + 10
-  result = 0
+  tau = rgeom(1,q) + 10
   
-  for (n in 0:tau) {
-    coeff = if (n == 0) 1 else (-1)^n / factorial(n)
-    if (n > 10) coeff = coeff / ((1 - q)^(n - 10))
-    
-    Hn = H(n, (yObs - rhat) / sd)
-    prod_term = 1
-    
-    if (n >= 1) {
-      for (j in 1:n) {
-        xGenerated = rnorm(length(xObs), mean = mu, sd = sigma)
-        s_val = classify(type, xObs, xGenerated, classifyParam)
-        prod_term = prod_term * (s_val - rhat) / sd
+  r = 1
+  if (tau >= 1) {
+    for (n in c(1:tau)) {
+      term = (-1)^n / factorial(n)
+      if (n > 10) term = term / ((1.0 - q)^(n-10))
+      term = term * H(n,(yObs - a) / sd)
+      
+      for (i in c(1:n)) {
+        y0 = 0
+        for (k in c(1:1)) {
+          xGenerated = rnorm(length(xObs),mean = mu,sd = sigma)
+          y0 = y0 + classify(type,xObs,xGenerated,classifyParam)
+        }
+        y0 = y0 / 1
+        
+        term = term * (a - y0) / sd
       }
     }
     
-    result = result + coeff * Hn * prod_term
+    r = r + term
   }
   
-  r = result * dnorm((yObs - rhat) / sd) / sd
+  r = r * exp( - 0.5 * ((yObs - a) / sd)^2)
   
-  if (is.nan(r) || is.infinite(r)) r = 0
-  return(r)
+  r
 }
