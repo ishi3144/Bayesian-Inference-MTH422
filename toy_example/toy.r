@@ -138,13 +138,13 @@ cat("Posterior SD of variance:\nExact  :", varExact_sd, "\nApprox:", varApprox_s
 cat("Posterior SD of std dev:\nExact  :", sdExact_sd, "\nApprox:", sdApprox_sd, "\n\n")
 
 
-
 # --- Grid-based posterior estimation using rhathat ---
 grid_vals = seq(1.0, 3.0, by = 0.2)
 grid_points = expand.grid(mu = grid_vals, sigma = grid_vals)
 posterior_estimate = numeric(nrow(grid_points))
 nrow(grid_points)
-for (i in 1:nrow(grid_points)) {
+for (i in 1:nrow(grid_points)) 
+{
   print(i)
   mu_i = grid_points$mu[i]
   sigma_i = grid_points$sigma[i]
@@ -160,12 +160,14 @@ posterior_estimate = posterior_estimate / sum(posterior_estimate)
 
 # --- True posterior using exact likelihood + prior ---
 true_posterior = numeric(nrow(grid_points))
-for (i in 1:nrow(grid_points)) {
+for (i in 1:nrow(grid_points)) 
+{
   print(i)
   mu_i = grid_points$mu[i]
   sigma_i = grid_points$sigma[i]
   
-  if (sigma_i > 0 && sigma_i < 10) {
+  if (sigma_i > 0 && sigma_i < 10)
+  {
     loglik = sum(dnorm(xObs, mean = mu_i, sd = sigma_i, log = TRUE))
     logprior_mu = dnorm(mu_i, mean = 0, sd = 5, log = TRUE)           # Prior: N(0,25)
     logprior_sigma = log(1 / 10)                                       # Prior: Uniform(0,10)
